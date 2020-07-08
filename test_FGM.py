@@ -33,7 +33,7 @@ gam = 1/L
 grad = lambda x: quad_grad(A,b,x)
 
 z0 = np.zeros(d)
-opt_sol = la.lstsq(A,b)[0]
+opt_sol = la.lstsq(A,b,rcond=None)[0]
 R = 2*la.norm(opt_sol)
 z = FGM(z0,R,gam,T,grad)
 
@@ -49,27 +49,37 @@ plt.xscale('log'); plt.yscale('log')
 plt.show()
 
 # Testing restarted FGM on the regularized problem min_x (Ax-b)^2/2 + mu*x^2/2
-eps = 1e-2
-kappa = 1e4
+eps = 1e-3
+kappa = 1e2
 mu = L/kappa
 def grad_reg(x):
     g = grad(x) + mu * x
     return g
 I = np.identity(d)
-opt_sol_reg = la.solve(A+mu*I,b)
-T_rx = int(np.ceil(np.sqrt(40*kappa)))
-S = int(np.ceil(np.log2(3*L*R/eps)))
-z_rx, z_all = restart_FGM(z0,R,gam,T_rx,S,grad_reg)
-
-# Plotting
+# Exact solution
+opt_sol_reg = la.solve(np.matmul(A.T,A)+mu*I,np.matmul(A.T,b))
+R_reg = 2*la.norm(opt_sol_reg)
+#print(R_reg)
 def func_reg(x):
     return func(x) + mu*(la.norm(x)**2)/2
 opt_val_reg = func_reg(opt_sol_reg)
-gap_reg_all = np.zeros((T_rx+1)*(S+1))
-for t in range((T_rx+1)*(S+1)):
-    gap_reg_all[t] = func_reg(z_all[:,t]) - opt_val_reg
+#print(opt_val_reg)
+# Solving by restarted FGM
+T_rx = int(np.ceil(np.sqrt(4*kappa)))
+S = int(np.ceil(np.log2(3*L*R_reg/eps)))
+z_rx, z_all = restart_FGM(z0,R_reg,gam,T_rx,S,grad_reg)
+
+# Plotting
+gap_reg_all = np.zeros((T_rx+1)*S)
+gap_reg_rx = np.zeros(S)
+for t in range((T_rx)*S):
+    gap_reg_all[t] = func_reg(z_all[:,[t]]) - opt_val_reg
+for s in range(S):
+    gap_reg_rx[s] = func_reg(z_rx[:,[s]]) - opt_val_reg
 #rate_rx = [L*(R**2)*(t+1)**(-2) for t in range(S+1)]
+#print(gap_reg_rx)
 plt.plot(gap_reg_all,color='blue')
+#plt.plot(gap_reg_rx,color='green')
 #plt.plot(rate,color='grey')
 #plt.xscale('log')
 plt.yscale('log')

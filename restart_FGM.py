@@ -7,11 +7,10 @@ from FGM import FGM
 def restart_FGM(z0,R,gam,T,S,grad_orc):
     d = len(z0)
     z_rx = np.zeros([d,S+1])
-    z_new = np.zeros([d,T+1])
-    z_all = np.zeros([d,(S+1)*(T+1)])
+    z_all = np.zeros([d,S*(T+1)])
     z_rx[:,0] = z0
     for s in range(S):
-        z_new = FGM(z_rx[:,s],R,gam,T,grad_orc)
-        z_all[:,(T+1)*s:(T+1)*(s+1)] = z_new
-        z_rx[:,s+1] = z_new[:,T]
+        z_temp = FGM(z_rx[:,s],R,gam,T,grad_orc)
+        z_rx[:,s+1] = z_temp[:,T]
+        z_all[:,(T)*s:(T)*(s+1)] = z_temp[:,1:T+1]
     return z_rx, z_all
