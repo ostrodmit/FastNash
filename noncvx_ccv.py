@@ -7,7 +7,7 @@ import numpy.linalg as la
 from restart_FGM import restart_FGM
 from solve_reg_dual import solve_reg_dual
 
-def Nash_noncvx_ccv(Gx,Gy,dx,dy,Rx,Ry,x0,y_bar,Tx,Ty,Sy,gam_x,gam_y,lam_y,To,So):
+def noncvx_ccv(Gx,Gy,dx,dy,Rx,Ry,x0,y_bar,Tx,Ty,Sy,gam_x,gam_y,lam_y,To,So):
     x = np.zeros([dx,Tx+1])
     x[:,0] = x0
     Gx_norm = np.ones(Tx+1)
