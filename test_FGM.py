@@ -19,7 +19,7 @@ def quad_func(A,b,x):
 
 # Testing FGM on the unconstrained quadratic problem min_x (Ax-b)^2/2 
 d = 50
-T = 10**3;
+T = int(1e4);
 A = np.diag(range(d))
 b = np.ones([d,1])
 b[0] = 0
@@ -70,9 +70,9 @@ S = int(np.ceil(np.log2(3*L*R_reg/eps)))
 z_rx, z_all = restart_FGM(z0,R_reg,gam,T_rx,S,grad_reg)
 
 # Plotting
-gap_reg_all = np.zeros((T_rx+1)*S)
+gap_reg_all = np.zeros(T_rx*S)
 gap_reg_rx = np.zeros(S)
-for t in range((T_rx)*S):
+for t in range(T_rx*S):
     gap_reg_all[t] = func_reg(z_all[:,[t]]) - opt_val_reg
 for s in range(S):
     gap_reg_rx[s] = func_reg(z_rx[:,[s]]) - opt_val_reg
