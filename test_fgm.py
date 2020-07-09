@@ -15,15 +15,17 @@ T = int(1e4)
 A = np.diag(range(d))
 b = np.ones([d,1])
 b[0] = 0
+
+# Defining gradient oracle
+grad = lambda x: quad_grad(A,b,x)
+
 # Stepsize calculation
 B = np.multiply(A.transpose(), A)
 [l,v] = la.eigh(B)
 L = np.max(l)
 gam = 1/L
 
-# Defining gradient oracle
-grad = lambda x: quad_grad(A,b,x)
-
+# Running the algorithm
 z0 = np.zeros(d)
 opt_sol = la.lstsq(A,b,rcond=None)[0]
 R = 2*la.norm(opt_sol)
@@ -48,6 +50,7 @@ def grad_reg(x):
     g = grad(x) + mu * x
     return g
 I = np.identity(d)
+
 # Exact solution
 opt_sol_reg = la.solve(np.matmul(A.T,A)+mu*I,np.matmul(A.T,b))
 R_reg = 2*la.norm(opt_sol_reg)
