@@ -7,7 +7,7 @@ import numpy.linalg as la
 def quad_grad(A,b,x):
     r = np.matmul(A,x)-b
     g = np.matmul(A.T,r)
-    return(g)
+    return(g.T)
 
 def quad_func(A,b,x):
     f = ((la.norm(np.matmul(A,x)-b))**2)/2
