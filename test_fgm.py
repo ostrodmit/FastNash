@@ -5,21 +5,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import numpy.linalg as la
 
-from FGM import FGM
-from restart_FGM import restart_FGM
-
-def quad_grad(A,b,x):
-    r = np.matmul(A,x)-b
-    g = np.matmul(A.T,r)
-    return(g)
-
-def quad_func(A,b,x):
-    f = ((la.norm(np.matmul(A,x)-b))**2)/2
-    return(f)
+from fgm import fgm
+from restart_fgm import restart_fgm
+from quadratic import quad_grad, quad_func
 
 # Testing FGM on the unconstrained quadratic problem min_x (Ax-b)^2/2 
 d = 50
-T = int(1e4);
+T = int(1e4)
 A = np.diag(range(d))
 b = np.ones([d,1])
 b[0] = 0
@@ -35,7 +27,7 @@ grad = lambda x: quad_grad(A,b,x)
 z0 = np.zeros(d)
 opt_sol = la.lstsq(A,b,rcond=None)[0]
 R = 2*la.norm(opt_sol)
-z = FGM(z0,R,gam,T,grad)
+z = fgm(z0,R,gam,T,grad)
 
 # Plotting
 func = lambda x: quad_func(A,b,x)
@@ -67,7 +59,7 @@ opt_val_reg = func_reg(opt_sol_reg)
 # Solving by restarted FGM
 T_rx = int(np.ceil(np.sqrt(4*kappa)))
 S = int(np.ceil(np.log2(3*L*R_reg/eps)))
-z_rx, z_all = restart_FGM(z0,R_reg,gam,T_rx,S,grad_reg)
+z_rx, z_all = restart_fgm(z0,R_reg,gam,T_rx,S,grad_reg)
 
 # Plotting
 gap_reg_all = np.zeros(T_rx*S)

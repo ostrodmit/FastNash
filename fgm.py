@@ -4,7 +4,7 @@
 import numpy as np
 import numpy.linalg as la
 
-def FGM(z0,R,gam,T,grad_orc):
+def fgm(z0,R,gam,T,grad_orc):
     d = len(z0)
     u = np.zeros([d,T])
     v = np.zeros([d,T+1])
