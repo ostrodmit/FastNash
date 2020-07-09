@@ -14,8 +14,8 @@ from quadratic import quad_grad, quad_func
 
 d = 10
 kap_y = 1e2
-delta = 1e-4
-Tx = int(1e3)
+delta = 1e-2
+Tx = int(1e1)
 
 # discrete difference matrix [[1,0,...,0], [-1,1,0,...,0],..., [0,...,0,-1,1]]
 I = np.identity(d)
