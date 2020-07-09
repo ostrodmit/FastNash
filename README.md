@@ -1,2 +1,2 @@
-# algo-noncvx-ccv
+# FastNash
 Efficient algorithm for nonconvex-concave min-max
