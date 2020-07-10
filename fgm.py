@@ -28,9 +28,10 @@ def fgm(z0,R,gam,T,grad_orc):
 
 def prox(z,zeta,R):
     z_temp = z - zeta 
-    norm = la.norm(z_temp)
-    if norm > R:
-        z_new = z_temp/norm
-    else:
-        z_new = z_temp
+#    norm = la.norm(z_temp)
+#    if norm > R:
+#        z_new = z_temp/norm*R
+#    else:
+#        z_new = z_temp
+    z_new = z_temp
     return z_new

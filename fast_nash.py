@@ -36,4 +36,6 @@ def fast_nash(Gx,Gy,dx,dy,Rx,Ry,x0,y_bar,Tx,Ty,Sy,gam_x,gam_y,lam_y,To,So):
         x_best[:,t] = x[:,tau]
         y_best[:,t] = y[:,tau]
         Gx_norm_best[t] = Gx_norm[tau]
+    print(x)
+    print(y)
     return x, y, Gx_norm, Gy_norm, x_best, y_best, Gx_norm_best
