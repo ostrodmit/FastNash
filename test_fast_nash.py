@@ -14,8 +14,8 @@ from quadratic import quad_grad, quad_func
 
 d = 10
 kap_y = 1e2
-delta = 1e-2
-Tx = int(1e1)
+delta = 1e-4
+Tx = int(100)
 
 # discrete difference matrix [[1,0,...,0], [-1,1,0,...,0],..., [0,...,0,-1,1]]
 I = np.identity(d)
@@ -60,17 +60,17 @@ x_opt = la.lstsq(A,b,rcond=None)[0]
 Rx = 2*la.norm(x_opt)
 
 # Running fast_nash
-x_fast, y_fast, Gx_norm_fast \
+x, y, Gx_norm, x_best, y_best, Gx_norm_best  \
 = fast_nash(Gx,Gy,d,d,Rx,Ry,x0,y_bar,Tx,Ty,Sy,gam_x,gam_y,lam_y,To,So)
 
 # Plotting
-plt.plot(Gx_norm_fast,color='red')
+plt.plot(Gx_norm,color='red')
 plt.xscale('log'); plt.yscale('log')
 plt.show()
 
 F = np.zeros(Tx+1)
 for t in range(Tx+1):
-    F[t] = func(x_fast[:,t],y_fast[:,t])
+    F[t] = func(x[:,t],y[:,t])
 #rate = [L*(R**2)*(t+1)**(-2) for t in range(T+1)]
 plt.plot(F,color='blue')
 plt.xscale('log'); plt.yscale('log')
