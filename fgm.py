@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-import numpy.linalg as la
+
+from prox import prox
 
 def fgm(z0,R,gam,T,grad_orc):
     d = len(z0)
@@ -24,14 +25,4 @@ def fgm(z0,R,gam,T,grad_orc):
         w[:,t+1] = prox(u[:,t], gam * g[:,t], R)
         z[:,t+1] = tau[t] * w[:,t+1] + (1-tau[t]) * z[:,t]
         G[:,t+1] = G[:,t] + g[:,t]
-    return(z);
-
-def prox(z,zeta,R):
-    z_temp = z - zeta 
-#    norm = la.norm(z_temp)
-#    if norm > R:
-#        z_new = z_temp/norm*R
-#    else:
-#        z_new = z_temp
-    z_new = z_temp
-    return z_new
+    return(z)

@@ -30,12 +30,10 @@ def fast_nash(Gx,Gy,dx,dy,Rx,Ry,x0,y_bar,Tx,Ty,Sy,gam_x,gam_y,lam_y,To,So):
         Gx_norm[t] = la.norm(Gx(x[:,t],y[:,t]))
         Gy_norm[t] = la.norm(Gy(x[:,t],y[:,t]))
         print(Gx_norm[t])
-        print(Gy_norm[t])
+#        print(Gy_norm[t])
         Gx_norm_list = Gx_norm.tolist()
         tau = Gx_norm_list.index(min(Gx_norm))
         x_best[:,t] = x[:,tau]
         y_best[:,t] = y[:,tau]
         Gx_norm_best[t] = Gx_norm[tau]
-    print(x)
-    print(y)
     return x, y, Gx_norm, Gy_norm, x_best, y_best, Gx_norm_best

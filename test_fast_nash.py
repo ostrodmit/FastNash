@@ -12,21 +12,23 @@ from quadratic import quad_grad, quad_func
 # min_x \max_y |A*x - y|_2^2/2 - L*|y - b|^2/2
 # with b the all-ones vector and A the discrete derivative matrix
 
-d = 1
+d = 10
 kap_y = 4
 delta = 1e-2
-Tx = int(10)
+Tx = int(50)
 
 # discrete difference matrix [[1,0,...,0], [-1,1,0,...,0],..., [0,...,0,-1,1]]
 I = np.identity(d)
 A = I
-#for j in range(1,d):
-#    A[j,j-1] = -1
+A[0,0] = 0
+for j in range(1,d):
+    A[j,j-1] = -1
 b = np.ones(d)
 
 # problem class parameters
 B = np.matmul(A.T,A)
 [l,v] = la.eigh(B)
+#print(l)
 Lxx = np.max(l)
 Lyy = kap_y
 #Lxy = np.sqrt(Lyy)
@@ -73,14 +75,15 @@ x, y, Gx_norm, Gy_norm, x_best, y_best, Gx_norm_best  \
 
 # Plotting
 plt.plot(Gx_norm,color='red')
-plt.plot(Gy_norm,color='green')
+#plt.plot(Gy_norm,color='green')
 plt.xscale('log'); plt.yscale('log')
 plt.show()
 
 F = np.zeros(Tx+1)
-for t in range(Tx+1):
+for t in range(1,Tx+1):
     F[t] = func(x[:,t],y[:,t])
+opt_val = func(x_opt,b)
 #rate = [L*(R**2)*(t+1)**(-2) for t in range(T+1)]
-plt.plot(F,color='blue')
+plt.plot(F[1:Tx+1]-opt_val,color='blue')
 plt.xscale('log'); plt.yscale('log')
 plt.show()
