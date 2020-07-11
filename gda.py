@@ -20,6 +20,7 @@ def gda(Gx,Gy,dx,dy,Rx,Ry,T,K,gam_x,gam_y,x0,y0):
     Gx_norm_best = math.inf * np.ones(T+1)
     Gy_norm = math.inf * np.ones(T+1)
     for t in range(T):
+        print(t)
         y_tmp = y[:,t]
         # Ty gradient ascent steps
         for k in range(K):

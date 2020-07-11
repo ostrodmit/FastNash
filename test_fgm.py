@@ -37,9 +37,10 @@ f = np.zeros(T+1)
 for t in range(T+1):
     f[t] = func(z[:,t])
 rate = [L*(R**2)*(t+1)**(-2) for t in range(T+1)]
-plt.plot(f,color='red')
-plt.plot(rate,color='grey')
+plt.plot(f,color='red',linewidth=2)
+plt.plot(rate,color='grey',linewidth=2)
 plt.xscale('log'); plt.yscale('log')
+plt.title('FGM')
 plt.show()
 
 # Testing restarted FGM on the regularized problem min_x (Ax-b)^2/2 + mu*x^2/2
@@ -71,10 +72,11 @@ for t in range(T_rx*S):
 for s in range(S+1):
     gap_reg_rx[s] = func_reg(z_rx[:,s]) - opt_val_reg
 #rate_rx = [L*(R**2)*(t+1)**(-2) for t in range(S+1)]
-#print(gap_reg_rx)
-plt.plot(gap_reg_all,color='blue')
+#print(gap_reg_rx)    
+plt.plot(gap_reg_all,color='red',linewidth=2)
 #plt.plot(gap_reg_rx,color='green')
 #plt.plot(rate,color='grey')
 #plt.xscale('log')
 plt.yscale('log')
+plt.title('Restarted FGM')
 plt.show()
