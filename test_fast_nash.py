@@ -2,8 +2,9 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-import matplotlib.pyplot as plt
 import numpy.linalg as la
+import os
+from plots import plots
 
 from fast_nash import fast_nash
 from fast_gda import fast_gda
@@ -15,9 +16,8 @@ from quadratic import quad_grad, quad_func
 # with L > 1 and lam << 1
 
 d = 10
-kap_y = 100
-delta = 1e-2
-Tx = int(5)
+kap_y = 1000
+Tx = int(2)
 
 # discrete difference matrix [[0,0,...,0], [-1,1,0,...,0],..., [0,...,0,-1,1]]
 I = np.identity(d)
@@ -108,23 +108,29 @@ opt_val = func(x_opt,y_opt)
 # Initializing input parameters for fast_nash
 gam_x = 1/(2*Lxx)
 gam_y = 1/(Lyy_plus)
-Ty = int(np.sqrt(40*(kap_y+1)))
+# Ty = int(np.sqrt(40*(kap_y+1))) # conservative estimate
+Ty = int(np.sqrt(4*(kap_y+1))) 
 #Ty = 1
+Theta = Lyy*(Ry**2)
 Theta_plus = Lyy_plus*(Ry**2)
+delta = 1e-2
 Sy = int(np.ceil(2*np.log2(max([Ty,Theta_plus/delta]))))
 #Sy = 1
-To = 11
-#OverGap = 72*(3*Gap+2*Theta_plus+6*lam_y*(Ry**2))
-OverGap = 72*(3*Gap+8*Theta_plus)
+
+# To = 11 # Conservative estimate
+To = 4
+
+# OverGap = 72*(3*Gap+2*Theta+6*lam_y*(Ry**2)) # Conservative estimate
+OverGap = Gap+Theta+lam_y*(Ry**2)
 So \
 = int(np.ceil(np.log2(OverGap * (Tx/Gap + 2*Theta_plus/(delta**2) + 1/(12*delta)))/2))
 
 # Running FastNash (without regularization)
 print('')
 print('Running FastNash')
-x_nash, y_nash, Gx_norm_nash, Gy_norm_nash, \
-x_best_nash, y_best_nash, Gx_norm_best_nash \
+x_nash, y_nash, Gx_norm_nash, Gy_norm_nash \
 = fast_nash(Gx,Gy,d,d,Rx,Ry,x0,y_bar,Tx,Ty,Sy,gam_x,gam_y,0,To,So)
+#, x_best_nash, y_best_nash, Gx_norm_best_nash
 
 # Initializing missing input parameters for FastGDA
 #K = 2*kap_y
@@ -135,29 +141,36 @@ gam_y_gda = 1/Lyy
 # Running FastGDA
 print('')
 print('Running FastGDA')
-x_gda, y_gda, Gx_norm_gda, Gy_norm_gda,     \
-x_best_gda, y_best_gda, Gx_norm_best_gda    \
+x_gda, y_gda, Gx_norm_gda, Gy_norm_gda \
 = fast_gda(Gx,Gy,d,d,Rx,Ry,x0,y_bar,Tx,Ty,Sy,gam_x_gda,gam_y_gda,0)
+#x_best_gda, y_best_gda, Gx_norm_best_gda
 
-# Plotting Gx norm
-plt.plot(Gx_norm_nash,color='red',linewidth=2)
-plt.plot(Gx_norm_gda,color='blue',linewidth=2)
-#plt.plot(Gy_norm,color='green')
-plt.xscale('log'); plt.yscale('log')
-plt.legend(['FastNash','FastGDA'])
-plt.title('x-gradient norm')
-plt.show()
+# Computing stats
+Gx_norm_rate = [np.sqrt(10*Lxx*(Gap+2*lam_y*(Ry**2))/(t+1)) for t in range(Tx+1)]
+nash_stretch = Ty * Sy * To * So
+gda_stretch = Ty * Sy
+nash_calls = [nash_stretch * t for t in range(Tx+1)]
+gda_calls = [gda_stretch * t for t in range(Tx+1)]
 
-# Plotting objective gap
 F_nash = np.zeros(Tx+1)
 F_gda = np.zeros(Tx+1)
 for t in range(1,Tx+1):
     F_nash[t] = func(x_nash[:,t],y_nash[:,t])
     F_gda[t] = func(x_gda[:,t],y_gda[:,t])
-#rate = [L*(R**2)*(t+1)**(-2) for t in range(T+1)]
-plt.plot(F_nash[1:Tx+1]-opt_val,color='red',linewidth=2)
-plt.plot(F_gda[1:Tx+1]-opt_val,color='blue',linewidth=2)
-plt.xscale('log'); plt.yscale('log')
-plt.legend(['FastNash','FastGDA'])
-plt.title('objective gap')
-plt.show()
+
+
+# Saving results
+fpath = os.getcwd()+'/data/'+'d-'+np.str(d)+'-kap-'+np.str(kap_y)+'-Tx-'+np.str(Tx)+'/'
+os.makedirs(fpath,exist_ok=True)
+
+np.savetxt(fpath+'nash-calls.txt', nash_calls)
+np.savetxt(fpath+'gda-calls.txt', gda_calls)
+
+np.savetxt(fpath+'nash-Gx_norm.txt', Gx_norm_nash)
+np.savetxt(fpath+'gda-Gx_norm.txt', Gx_norm_gda)
+np.savetxt(fpath+'rate-Gx_norm.txt', Gx_norm_rate)
+
+np.savetxt(fpath+'nash-gap.txt', F_nash-opt_val)
+np.savetxt(fpath+'gda-gap.txt', F_gda-opt_val)
+
+plots(fpath)
