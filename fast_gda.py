@@ -14,13 +14,17 @@ def fast_gda(Gx,Gy,dx,dy,Rx,Ry,x0,y_bar,Tx,Ty,Sy,gam_x,gam_y,lam_y):
 #    x_best = np.zeros([dx,Tx+1])
 #    x_best[:,0] = x0
     y = np.zeros([dy,Tx+1])
+    # Formally computing y_0 to get the same intitial pair as other algorithms
+    gt_reg_y = lambda y: -gam_y * Gy(x[:,0],y)
+    yy = restart_fgm(y_bar,Ry,gam_y,Ty,Sy,gt_reg_y)[0]
+    y[:,0] = yy[:,Sy]
 #    y_best = np.zeros([dy,Tx+1])
     Gx_norm = math.inf * np.ones(Tx+1)
-#    Gx_norm[0] = la.norm(Gx(x[:,0],y_bar))
+    Gx_norm[0] = la.norm(Gx(x[:,0],y[:,0]))
 #    Gx_norm_best = math.inf * np.ones(Tx+1)
     Gy_norm = math.inf * np.ones(Tx+1)
     for t in range(1,Tx+1):
-        print(t)
+        print(str(t)+'/'+str(Tx))
 #        xt_y = \
 #        lambda y: solve_reg_dual(y,x[:,t-1],y_bar,gam_x,lam_y,To,So,Rx,Gx,Gy)[0]
 #        gt_reg_y = \

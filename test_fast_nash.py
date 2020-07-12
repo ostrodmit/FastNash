@@ -16,8 +16,8 @@ from quadratic import quad_grad, quad_func
 # with L > 1 and lam << 1
 
 d = 10
-kap_y = 1000
-Tx = int(2)
+kap_y = 1e2
+Tx_nash = int(1e1)
 
 # discrete difference matrix [[0,0,...,0], [-1,1,0,...,0],..., [0,...,0,-1,1]]
 I = np.identity(d)
@@ -109,7 +109,7 @@ opt_val = func(x_opt,y_opt)
 gam_x = 1/(2*Lxx)
 gam_y = 1/(Lyy_plus)
 # Ty = int(np.sqrt(40*(kap_y+1))) # conservative estimate
-Ty = int(np.sqrt(4*(kap_y+1))) 
+Ty = int(np.sqrt(4*(kap_y+1)))
 #Ty = 1
 Theta = Lyy*(Ry**2)
 Theta_plus = Lyy_plus*(Ry**2)
@@ -123,13 +123,15 @@ To = 4
 # OverGap = 72*(3*Gap+2*Theta+6*lam_y*(Ry**2)) # Conservative estimate
 OverGap = Gap+Theta+lam_y*(Ry**2)
 So \
-= int(np.ceil(np.log2(OverGap * (Tx/Gap + 2*Theta_plus/(delta**2) + 1/(12*delta)))/2))
+= int(np.ceil(np.log2(OverGap * (Tx_nash/Gap + 2*Theta_plus/(delta**2) + 1/(12*delta)))/2))
+
+Tx_gda = Tx_nash * To * So
 
 # Running FastNash (without regularization)
 print('')
 print('Running FastNash')
 x_nash, y_nash, Gx_norm_nash, Gy_norm_nash \
-= fast_nash(Gx,Gy,d,d,Rx,Ry,x0,y_bar,Tx,Ty,Sy,gam_x,gam_y,0,To,So)
+= fast_nash(Gx,Gy,d,d,Rx,Ry,x0,y_bar,Tx_nash,Ty,Sy,gam_x,gam_y,0,To,So)
 #, x_best_nash, y_best_nash, Gx_norm_best_nash
 
 # Initializing missing input parameters for FastGDA
@@ -142,25 +144,26 @@ gam_y_gda = 1/Lyy
 print('')
 print('Running FastGDA')
 x_gda, y_gda, Gx_norm_gda, Gy_norm_gda \
-= fast_gda(Gx,Gy,d,d,Rx,Ry,x0,y_bar,Tx,Ty,Sy,gam_x_gda,gam_y_gda,0)
+= fast_gda(Gx,Gy,d,d,Rx,Ry,x0,y_bar,Tx_gda,Ty,Sy,gam_x_gda,gam_y_gda,0)
 #x_best_gda, y_best_gda, Gx_norm_best_gda
 
 # Computing stats
-Gx_norm_rate = [np.sqrt(10*Lxx*(Gap+2*lam_y*(Ry**2))/(t+1)) for t in range(Tx+1)]
-nash_stretch = Ty * Sy * To * So
-gda_stretch = Ty * Sy
-nash_calls = [nash_stretch * t for t in range(Tx+1)]
-gda_calls = [gda_stretch * t for t in range(Tx+1)]
+Gx_norm_rate = [np.sqrt(10*Lxx*(Gap+2*lam_y*(Ry**2))/(t+1)) for t in range(Tx_nash+1)]
+#nash_stretch = Ty * Sy * To * So
+y_stretch = Ty * Sy
+nash_calls = [y_stretch * To * So * t for t in range(Tx_nash+1)]
+gda_calls = [y_stretch * t for t in range(Tx_gda+1)]
 
-F_nash = np.zeros(Tx+1)
-F_gda = np.zeros(Tx+1)
-for t in range(1,Tx+1):
+F_nash = np.zeros(Tx_nash+1)
+F_gda = np.zeros(Tx_gda+1)
+for t in range(1,Tx_nash+1):
     F_nash[t] = func(x_nash[:,t],y_nash[:,t])
-    F_gda[t] = func(x_gda[:,t],y_gda[:,t])
+for tau in range(1,Tx_gda+1):
+    F_gda[tau] = func(x_gda[:,tau],y_gda[:,tau])
 
 
 # Saving results
-fpath = os.getcwd()+'/data/'+'d-'+np.str(d)+'-kap-'+np.str(kap_y)+'-Tx-'+np.str(Tx)+'/'
+fpath = os.getcwd()+'/data/'+'d-'+np.str(d)+'-kap-'+np.str(kap_y)+'-Tx-'+np.str(Tx_nash)+'/'
 os.makedirs(fpath,exist_ok=True)
 
 np.savetxt(fpath+'nash-calls.txt', nash_calls)
