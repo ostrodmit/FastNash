@@ -130,7 +130,7 @@ Tx_gda = Tx_nash * To * So
 # Running FastNash (without regularization)
 print('')
 print('Running FastNash')
-x_nash, y_nash, Gx_norm_nash, Gy_norm_nash \
+x_nash, y_nash, Gx_norm_nash, Gy_norm_nash, Gz_norm_all_nash \
 = fast_nash(Gx,Gy,d,d,Rx,Ry,x0,y_bar,Tx_nash,Ty,Sy,gam_x,gam_y,0,To,So)
 #, x_best_nash, y_best_nash, Gx_norm_best_nash
 
@@ -143,7 +143,7 @@ gam_y_gda = 1/Lyy
 # Running FastGDA
 print('')
 print('Running FastGDA')
-x_gda, y_gda, Gx_norm_gda, Gy_norm_gda \
+x_gda, y_gda, Gx_norm_gda, Gy_norm_gda, Gz_norm_all_gda \
 = fast_gda(Gx,Gy,d,d,Rx,Ry,x0,y_bar,Tx_gda,Ty,Sy,gam_x_gda,gam_y_gda,0)
 #x_best_gda, y_best_gda, Gx_norm_best_gda
 
@@ -171,6 +171,9 @@ np.savetxt(fpath+'gda-calls.txt', gda_calls)
 np.savetxt(fpath+'nash-Gx_norm.txt', Gx_norm_nash)
 np.savetxt(fpath+'gda-Gx_norm.txt', Gx_norm_gda)
 np.savetxt(fpath+'rate-Gx_norm.txt', Gx_norm_rate)
+
+np.savetxt(fpath+'nash-Gz_norm_all.txt', Gz_norm_all_nash)
+np.savetxt(fpath+'gda-Gz_norm_all.txt', Gz_norm_all_gda)
 
 np.savetxt(fpath+'nash-gap.txt', F_nash-opt_val)
 np.savetxt(fpath+'gda-gap.txt', F_gda-opt_val)

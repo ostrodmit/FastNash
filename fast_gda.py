@@ -14,15 +14,23 @@ def fast_gda(Gx,Gy,dx,dy,Rx,Ry,x0,y_bar,Tx,Ty,Sy,gam_x,gam_y,lam_y):
 #    x_best = np.zeros([dx,Tx+1])
 #    x_best[:,0] = x0
     y = np.zeros([dy,Tx+1])
+    stretch = Ty*Sy
+    x_all = np.zeros([dx,stretch*(Tx+1)])
+    y_all = np.zeros([dy,stretch*(Tx+1)])
     # Formally computing y_0 to get the same intitial pair as other algorithms
     gt_reg_y = lambda y: -gam_y * Gy(x[:,0],y)
-    yy = restart_fgm(y_bar,Ry,gam_y,Ty,Sy,gt_reg_y)[0]
-    y[:,0] = yy[:,Sy]
+    yy_rx, yy_all = restart_fgm(y_bar,Ry,gam_y,Ty,Sy,gt_reg_y)
+    y[:,0] = yy_rx[:,Sy]
+    y_all[:,0:stretch] = yy_all
+    x_all[:,0:stretch] = np.tile(x[:,0],[stretch,1]).T
 #    y_best = np.zeros([dy,Tx+1])
     Gx_norm = math.inf * np.ones(Tx+1)
     Gx_norm[0] = la.norm(Gx(x[:,0],y[:,0]))
 #    Gx_norm_best = math.inf * np.ones(Tx+1)
     Gy_norm = math.inf * np.ones(Tx+1)
+    Gx_norm_all = math.inf * np.ones(stretch*(Tx+1))
+    Gy_norm_all = math.inf * np.ones(stretch*(Tx+1))
+    Gz_norm_all = math.inf * np.ones(stretch*(Tx+1))
     for t in range(1,Tx+1):
         print(str(t)+'/'+str(Tx))
 #        xt_y = \
@@ -30,8 +38,8 @@ def fast_gda(Gx,Gy,dx,dy,Rx,Ry,x0,y_bar,Tx,Ty,Sy,gam_x,gam_y,lam_y):
 #        gt_reg_y = \
 #        lambda y: solve_reg_dual(y,x[:,t-1],y_bar,gam_x,lam_y,To,So,Rx,Gx,Gy)[1]
         gt_reg_y = lambda y: -gam_y * Gy(x[:,t-1],y)
-        yy = restart_fgm(y_bar,Ry,gam_y,Ty,Sy,gt_reg_y)[0]
-        y[:,t] = yy[:,Sy]        
+        yy_rx, yy_all = restart_fgm(y_bar,Ry,gam_y,Ty,Sy,gt_reg_y)
+        y[:,t] = yy_rx[:,Sy]        
         gxt = gam_x * Gx(x[:,t-1],y[:,t])
         x[:,t] = prox(x[:,t-1],gxt,Rx)
         Gx_norm[t] = la.norm(Gx(x[:,t],y[:,t]))
@@ -42,4 +50,11 @@ def fast_gda(Gx,Gy,dx,dy,Rx,Ry,x0,y_bar,Tx,Ty,Sy,gam_x,gam_y,lam_y):
 #        x_best[:,t] = x[:,tau]
 #        y_best[:,t] = y[:,tau]
 #        Gx_norm_best[t] = Gx_norm[tau]
-    return x, y, Gx_norm, Gy_norm#, x_best, y_best, Gx_norm_best
+        ts = np.arange(t*stretch,(t+1)*stretch)
+        y_all[:,ts] = yy_all
+        x_all[:,ts] = np.tile(x[:,t],[stretch,1]).T
+        for tau in ts:
+            Gx_norm_all[tau] = la.norm(Gx(x_all[:,tau],y_all[:,tau]))
+            Gy_norm_all[tau] = la.norm(Gy(x_all[:,tau],y_all[:,tau]))
+            Gz_norm_all[tau] = Gx_norm_all[tau] + Gy_norm_all[tau]
+    return x, y, Gx_norm, Gy_norm, Gz_norm_all#, x_best, y_best, Gx_norm_best
