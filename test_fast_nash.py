@@ -16,8 +16,8 @@ from quadratic import quad_grad, quad_func
 # with L > 1 and lam << 1
 
 d = 10
-kap_y = 1e2
-Tx_nash = int(1e1)
+kap_y = 1e3
+Tx_nash = int(1e2)
 
 # discrete difference matrix [[0,0,...,0], [-1,1,0,...,0],..., [0,...,0,-1,1]]
 I = np.identity(d)
@@ -149,16 +149,15 @@ x_gda, y_gda, Gx_norm_gda, Gy_norm_gda \
 
 # Computing stats
 Gx_norm_rate = [np.sqrt(10*Lxx*(Gap+2*lam_y*(Ry**2))/(t+1)) for t in range(Tx_nash+1)]
-#nash_stretch = Ty * Sy * To * So
 y_stretch = Ty * Sy
 nash_calls = [y_stretch * To * So * t for t in range(Tx_nash+1)]
 gda_calls = [y_stretch * t for t in range(Tx_gda+1)]
 
 F_nash = np.zeros(Tx_nash+1)
 F_gda = np.zeros(Tx_gda+1)
-for t in range(1,Tx_nash+1):
+for t in range(Tx_nash+1):
     F_nash[t] = func(x_nash[:,t],y_nash[:,t])
-for tau in range(1,Tx_gda+1):
+for tau in range(Tx_gda+1):
     F_gda[tau] = func(x_gda[:,tau],y_gda[:,tau])
 
 
